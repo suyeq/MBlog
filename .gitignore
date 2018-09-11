@@ -1,0 +1,15 @@
+# 数据库属性文件
+*datasource.properties
+*global.properties
+
+# Intellij
+.idea/*
+*.iml
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+log/*
+target/*

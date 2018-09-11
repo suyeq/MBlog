@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cyc.dao.BlogMapper">
+    <resultMap id="BaseResultMap" type="com.cyc.pojo.Blog">
+        <id column="blogid" jdbcType="INTEGER" property="blogid"/>
+        <result column="userid" jdbcType="INTEGER" property="userid"/>
+        <result column="publishtime" jdbcType="TIMESTAMP" property="publishtime"/>
+    </resultMap>
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.cyc.pojo.Blog">
+        <result column="content" jdbcType="LONGVARCHAR" property="content"/>
+    </resultMap>
+    <resultMap id="ResultMapWithIds" type="com.cyc.pojo.Blog">
+        <result column="blogid" jdbcType="INTEGER" property="blogid"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        blogid, userid, publishtime
+    </sql>
+    <sql id="Blob_Column_List">
+        content
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from blog
+        where blogid = #{blogid,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectAll" resultMap="ResultMapWithIds">
+        select blogid
+        from blog
+        order by publishtime desc;
+    </select>
+    <select id="selectByUserId" resultMap="ResultMapWithIds">
+        select blogid
+        from blog
+        where userid = #{userid,jdbcType=INTEGER}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from blog
+        where blogid = #{blogid,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.cyc.pojo.Blog"  useGeneratedKeys="true" keyProperty="blogid">
+        insert into blog (blogid, userid, publishtime,
+                          content)
+        values (#{blogid,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}, #{publishtime,jdbcType=TIMESTAMP},
+                #{content,jdbcType=LONGVARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.cyc.pojo.Blog">
+        insert into blog
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="blogid != null">
+                blogid,
+            </if>
+            <if test="userid != null">
+                userid,
+            </if>
+            <if test="publishtime != null">
+                publishtime,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="blogid != null">
+                #{blogid,jdbcType=INTEGER},
+            </if>
+            <if test="userid != null">
+                #{userid,jdbcType=INTEGER},
+            </if>
+            <if test="publishtime != null">
+                #{publishtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.cyc.pojo.Blog">
+        update blog
+        <set>
+            <if test="userid != null">
+                userid = #{userid,jdbcType=INTEGER},
+            </if>
+            <if test="publishtime != null">
+                publishtime = #{publishtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where blogid = #{blogid,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.cyc.pojo.Blog">
+        update blog
+        set userid      = #{userid,jdbcType=INTEGER},
+            publishtime = #{publishtime,jdbcType=TIMESTAMP},
+            content     = #{content,jdbcType=LONGVARCHAR}
+        where blogid = #{blogid,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.cyc.pojo.Blog">
+        update blog
+        set userid      = #{userid,jdbcType=INTEGER},
+            publishtime = #{publishtime,jdbcType=TIMESTAMP}
+        where blogid = #{blogid,jdbcType=INTEGER}
+    </update>
+</mapper>
