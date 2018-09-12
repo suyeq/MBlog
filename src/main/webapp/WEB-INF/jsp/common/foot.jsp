@@ -2,7 +2,7 @@
 
 <%--将脚本文件放在页面尾部，从而加快加载速度--%>
 <script src="${pageContext.request.contextPath}/resource/js/footer.js"></script>
-<script src="${pageContext.request.contextPath}/resource/js/blog.js"></script>
+<script src="${pageContext.request.contextPath}/resource/js/blog.js?v=123"></script>
 
 <footer class="bs-docs-footer">
     <div class="container">

@@ -2,6 +2,8 @@
 *datasource.properties
 *global.properties
 
+out/*
+
 # Intellij
 .idea/*
 *.iml

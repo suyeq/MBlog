@@ -1,3 +1,16 @@
+<div align="center">
+    <h1>
+        MbBlog
+    </h1>
+    <img src="pics/8.gif">
+</div>
+
+## How to Use
+
+- 用户名：root
+
+- 密码：123
+
 ## 缓存
 
 ### 热点微博
@@ -254,4 +267,99 @@ mysql > show slave status\G;
             Slave_IO_Running: Yes
             Slave_SQL_Running: Yes
             ...
+```
+
+## 交互设计
+
+### 登录时异步修改用户头像
+
+为了提高用户在登录时的使用体验，通过监听用户名输入框的 focusout 事件，当该事件发生时，通过 ajax 异步获取用户头像。
+
+```js
+var userNameInput = $("input[name=userName]");
+userNameInput.focusout(function ()
+{
+    $.ajax({
+            url: "getUserHeadPic.html",
+            type: "post",
+            dataType: "text",
+            data: {
+                userName: userNameInput.val()
+            },
+            success: function (headpic)
+            {
+                replaceHeadPic(headpic);
+            }
+    });
+}
+```
+
+<div align="center">
+    <img src="pics/9.gif">
+</div>
+
+### 异步删帖
+
+考虑到用户在删帖后想继续浏览剩下的帖子，因此采用异步的方式进行删帖，删帖之后不需要刷新页面。
+
+删帖成功之后，会将该帖子隐藏。为了更好的体验，隐藏过程设置了一个 200 毫秒的延迟，从而具有一个短暂的隐藏动画效果。
+
+```js
+var deleteBlog = $("#delete-blog");
+
+deleteBlog.on("click", function ()
+{
+    var blogid = deleteBlog.attr("blogid");
+    var blogDiv = $("#blog-" + blogid.toString());
+    $.ajax({
+        url: "editBlog.html",
+        type: "post",
+        dataType: "text",
+        data: {
+            blogId: blogid
+        },
+        success: function ()
+        {
+            blogDiv.hide(200);
+        }
+    });
+})
+```
+
+
+
+
+
+<div align="center">
+    <img src="pics/10.gif">
+</div>
+
+## 性能测试
+
+使用 Apache 的 ab 工具来进行压力测试。
+
+为了防止网络时延的影响，因此在服务器端运行 ab 工具进行测试。
+
+使用以下命令来使用 ab 工具，其中 -c 参数为并发数，-n 参数为请求数，-k 参数表示持久连接，http://localhost/dblog 就是待测试的网站。
+
+```
+ab -c 1000 -n 5000 -k http://localhost/dblog
+```
+
+在使用 Redis 进行缓存以及使用主从架构来实现读写分离之前，进行以上测试得到的部分结果如下，可以看出可以每秒平均的请求数为 715.81。
+
+```
+Time taken for tests:  6.985 seconds
+Total transferred:      2645529 bytes
+HTML transferred:      1530306 bytes
+Requests per second:    715.81 [#/sec] (mean)
+```
+
+而在使用 Redis 以及主从架构之后，测试的结果如下，每秒平均的请求数以及提高到了 4839.62，大大提高了网站的吞吐量。
+
+```
+Time taken for tests:  1.033 seconds
+Total transferred:      2696313 bytes
+HTML transferred:      1559682 bytes
+Requests per second:    4839.62 [#/sec] (mean)
 ```

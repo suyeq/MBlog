@@ -17,5 +17,5 @@ public interface BlogService {
 
     void editBlog(int blogId, String content);
 
-    void deleteBlog(int blogId);
+    void deleteBlog(int userId,  int blogId);
 }

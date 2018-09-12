@@ -8,7 +8,7 @@ $(document).ready(function ()
         var blogid = deleteBlog.attr("blogid");
         var blogDiv = $("#blog-" + blogid.toString());
         $.ajax({
-            url: "editBlog.html",
+            url: "deleteBlog.html",
             type: "post",
             dataType: "text",
             data: {

@@ -102,7 +102,8 @@ public class BlogServiceImp implements BlogService {
     }
 
     @Override
-    public void deleteBlog(int blogId) {
+    public void deleteBlog(int userId, int blogId) {
         blogMapper.deleteByPrimaryKey(blogId);
+        userTimeLineDao.delete(userId, blogId);
     }
 }

@@ -33,9 +33,6 @@
         </nav>
 
     </div>
-
     <div class="col-lg-1 col-md-1 col-xs-0"></div>
-
 </div>
-
 <br>

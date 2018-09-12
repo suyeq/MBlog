@@ -27,10 +27,11 @@ public class BlogController {
         return new ModelAndView("redirect:/index.html");
     }
 
-    @RequestMapping(value = "/editBlog.html")
+    @RequestMapping(value = "/deleteBlog.html")
     @ResponseBody
     public String deleteBlog(Integer blogId) {
-        blogServiceImp.deleteBlog(blogId);
+        User user = SessionUtil.getUserSession(request);
+        blogServiceImp.deleteBlog(user.getUserid(), blogId);
         return "success";
     }
 }

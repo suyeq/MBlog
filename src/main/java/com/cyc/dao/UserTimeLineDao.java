@@ -42,4 +42,11 @@ public class UserTimeLineDao {
         }
         return ret;
     }
+
+    public void delete(Integer userId, Integer blogId) {
+        String key = TIME_LINE_NAMESPACE + userId;
+        try (Jedis jedis = RedisPool.getResource()) {
+            jedis.zrem(key, blogId + "");
+        }
+    }
 }
