@@ -156,6 +156,9 @@ public class RedisPool {
         return result;
     }
 
+    public static void returnResource(Jedis jedis) {
+        pool.returnResource(jedis);
+    }
 
     public static Jedis getResource() {
         return pool.getResource();

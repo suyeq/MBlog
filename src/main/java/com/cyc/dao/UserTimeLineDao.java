@@ -17,6 +17,7 @@ public class UserTimeLineDao {
         String key = TIME_LINE_NAMESPACE + userId;
         try (Jedis jedis = RedisPool.getResource()) {
             jedis.zadd(key, (double) System.currentTimeMillis(), blogId + "");
+            RedisPool.returnResource(jedis);
         }
     }
 
@@ -27,6 +28,7 @@ public class UserTimeLineDao {
                 String key = TIME_LINE_NAMESPACE + userId;
                 allBlog.addAll(jedis.zrangeByScoreWithScores(key, 0, System.currentTimeMillis()));
             }
+            RedisPool.returnResource(jedis);
         }
         List<Tuple> allBlogList = new ArrayList<>(allBlog);
         Collections.sort(allBlogList, new Comparator<Tuple>() {
@@ -47,6 +49,7 @@ public class UserTimeLineDao {
         String key = TIME_LINE_NAMESPACE + userId;
         try (Jedis jedis = RedisPool.getResource()) {
             jedis.zrem(key, blogId + "");
+            RedisPool.returnResource(jedis);
         }
     }
 }
