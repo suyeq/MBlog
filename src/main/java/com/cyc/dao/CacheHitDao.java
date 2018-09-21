@@ -16,14 +16,12 @@ public class CacheHitDao {
     public void hit() {
         try (Jedis jedis = RedisPool.getResource()) {
             jedis.incr(CACHE_HIT_KEY);
-            RedisPool.returnResource(jedis);
         }
     }
 
     public void miss() {
         try (Jedis jedis = RedisPool.getResource()) {
             jedis.incr(CACHE_MISS_KEY);
-            RedisPool.returnResource(jedis);
         }
     }
 }

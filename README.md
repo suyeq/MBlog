@@ -27,9 +27,9 @@
 
 ## How to Use
 
-- 用户名：root
+- 用户名：test
 
-- 密码：123
+- 密码：test
 
 ## 缓存
 
