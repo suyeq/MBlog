@@ -15,7 +15,6 @@ public class BlogCacheDao {
         String key = BLOG_NAMESPACE + blog.getBlogid();
         try (Jedis jedis = RedisPool.getResource()) {
             jedis.set(key, SerializeUtil.writeBlogObject(blog));
-            RedisPool.returnResource(jedis);
         }
     }
 
@@ -27,7 +26,6 @@ public class BlogCacheDao {
             if (s != null) {
                 blog = SerializeUtil.readBlogObject(s);
             }
-            RedisPool.returnResource(jedis);
         }
         return blog;
     }

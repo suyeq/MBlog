@@ -3,6 +3,7 @@ package com.cyc.controller;
 import com.cyc.pojo.User;
 import com.cyc.service.imp.BlogServiceImp;
 import com.cyc.util.SessionUtil;
+import com.cyc.util.XSSFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,7 @@ public class BlogController {
     @RequestMapping(value = "/publishBlog.html")
     public ModelAndView publishBlog(String blogContent) {
         User user = SessionUtil.getUserSession(request);
+        blogContent = XSSFilter.filterBrackets(blogContent);
         blogServiceImp.addBlog(user.getUserid(), blogContent);
         return new ModelAndView("redirect:/index.html");
     }

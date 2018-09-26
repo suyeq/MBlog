@@ -12,20 +12,20 @@ public class RedisPool {
 
     private static JedisPool pool;
 
-
     private static void initPool() {
 
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxTotal(PropertiesUtil.getIntegerProperty("redis.max.total"));
         config.setMaxIdle(PropertiesUtil.getIntegerProperty("redis.max.idle"));
         config.setMinIdle(PropertiesUtil.getIntegerProperty("redis.min.idle"));
-        config.setTestOnBorrow(PropertiesUtil.getBooleanProperty("redis.test.on.borrow"));
-        config.setTestOnReturn(PropertiesUtil.getBooleanProperty("redis.test.on.return"));
+//        config.setTestOnBorrow(PropertiesUtil.getBooleanProperty("redis.test.on.borrow"));
+//        config.setTestOnReturn(PropertiesUtil.getBooleanProperty("redis.test.on.return"));
         config.setBlockWhenExhausted(PropertiesUtil.getBooleanProperty("redis.lock.when.exhausted"));
         pool = new JedisPool(config,
                 PropertiesUtil.getProperty("redis.ip"),
                 PropertiesUtil.getIntegerProperty("redis.port", "6379"),
-                PropertiesUtil.getIntegerProperty("redis.timeout"));
+                PropertiesUtil.getIntegerProperty("redis.timeout"),
+                PropertiesUtil.getProperty("redis.password"));
     }
 
 

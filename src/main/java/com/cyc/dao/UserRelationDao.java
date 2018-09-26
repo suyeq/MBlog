@@ -17,7 +17,6 @@ public class UserRelationDao {
         String key = FANS_NAMESPACE + userId;
         try (Jedis jedis = RedisPool.getResource()) {
             jedis.sadd(key, fansId + "");
-            RedisPool.returnResource(jedis);
         }
     }
 
@@ -25,7 +24,6 @@ public class UserRelationDao {
         String key = FOCUS_NAMESPACE + userId;
         try (Jedis jedis = RedisPool.getResource()) {
             jedis.sadd(key, focusId + "");
-            RedisPool.returnResource(jedis);
         }
     }
 
@@ -35,7 +33,6 @@ public class UserRelationDao {
         try (Jedis jedis = RedisPool.getResource()) {
             Set<String> set = jedis.smembers(key);
             ret = convertStringSet2IntegerSet(set);
-            RedisPool.returnResource(jedis);
         }
         return ret;
     }
@@ -46,7 +43,6 @@ public class UserRelationDao {
         try (Jedis jedis = RedisPool.getResource()) {
             Set<String> set = jedis.smembers(key);
             ret = convertStringSet2IntegerSet(set);
-            RedisPool.returnResource(jedis);
         }
         return ret;
     }
