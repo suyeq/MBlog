@@ -124,26 +124,32 @@ public void addBlog(int userId, String content)
 在实现 Redis 缓存功能时，最开始选择使用 Java 自带的序列化方式将一个对象转换成字节数组然后存储，但是后来意识到这样序列化得到的内容有很多是类定义的内容，这部分内容完全没必要存入缓存中，只需要将几个关键字段拼接成字符串存储即可，实现代码如下：
 
 ```java
-public static String writeBlogObject(Blog blog)
-{
-    StringBuilder s = new StringBuilder();
-    s.append(blog.getUserid()).append(",");
-    s.append(blog.getBlogid()).append(",");
-    s.append(DateUtil.formatDate(blog.getPublishtime())).append(",");
-    s.append(blog.getContent());
-    return s.toString();
+public class SerializeUtil {
+
+    private static final String separator = "/////";
+
+    public static String writeBlogObject(Blog blog) 
+    {
+        StringBuilder s = new StringBuilder();
+        s.append(blog.getUserid()).append(separator);
+        s.append(blog.getBlogid()).append(separator);
+        s.append(DateUtil.formatDate(blog.getPublishtime())).append(",");
+        s.append(blog.getContent());
+        return s.toString();
+    }
+
+    public static Blog readBlogObject(String s) 
+    {
+        Blog blog = new Blog();
+        String[] token = s.split(separator);
+        blog.setUserid(Integer.valueOf(token[0]));
+        blog.setBlogid(Integer.valueOf(token[1]));
+        blog.setPublishtime(DateUtil.parseDate(token[2]));
+        blog.setContent(token[3]);
+        return blog;
+    }
 }
 
-public static Blog readBlogObject(String s)
-{
-    Blog blog = new Blog();
-    String[] token = s.split(",");
-    blog.setUserid(Integer.valueOf(token[0]));
-    blog.setBlogid(Integer.valueOf(token[1]));
-    blog.setPublishtime(DateUtil.parseDate(token[2]));
-    blog.setContent(token[3]);
-    return blog;
-}
 ```
 
 为了验证两种序列化方式的时间和空间上的开销，进行了两个基准测试，测试代码在 com.cyc.benchmark.SerializeTest.java 中，因为比较长就不贴代码了。
