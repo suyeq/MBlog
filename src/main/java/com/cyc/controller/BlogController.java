@@ -23,9 +23,11 @@ public class BlogController {
 
     @RequestMapping(value = "/publishBlog.html")
     public ModelAndView publishBlog(String blogContent) {
-        User user = SessionUtil.getUserSession(request);
-        blogContent = XSSFilter.filterBrackets(blogContent);
-        blogServiceImp.addBlog(user.getUserid(), blogContent);
+        if (blogContent.length() != 0) {
+            User user = SessionUtil.getUserSession(request);
+            blogContent = XSSFilter.filterBrackets(blogContent);
+            blogServiceImp.addBlog(user.getUserid(), blogContent);
+        }
         return new ModelAndView("redirect:/index.html");
     }
 
