@@ -239,7 +239,7 @@ read-only         = 1
 [root]# service mysqld restart;
 ```
 
-《高性能 MySQL》书上的配置文件中使用的是下划线，例如 server_id，使用这种方式在当前版本的 MySQL 中不能使用。
+《高性能 MySQL》书上的配置文件中使用的是下划线，例如 server_id，使用这种方式在当前版本的 MySQL 中不再生效。
 
 #### 启动复制
 
@@ -377,8 +377,6 @@ deleteBlog.on("click", function ()
 
 
 
-
-
 <div align="center">
     <img src="pics/10.gif">
 </div>
@@ -389,26 +387,26 @@ deleteBlog.on("click", function ()
 
 为了防止网络时延的影响，因此在服务器端运行 ab 工具进行测试。
 
-使用以下命令来使用 ab 工具，其中 -c 参数为并发数，-n 参数为请求数，-k 参数表示持久连接，http://localhost/dblog 就是待测试的网站。
+使用以下命令来使用 ab 工具，其中 -c 参数为并发数，-n 参数为请求数，-k 参数表示持久连接，http://localhost/MBlog 就是待测试的网站。
 
 ```
-ab -c 1000 -n 5000 -k http://localhost/dblog
+ab -c 1000 -n 5000 -k http://localhost/MBlog
 ```
 
 在使用 Redis 进行缓存以及使用主从架构来实现读写分离之前，进行以上测试得到的部分结果如下，可以看出可以每秒平均的请求数为 715.81。
 
 ```
-Time taken for tests:  6.985 seconds
+Time taken for tests:   6.985 seconds
 Total transferred:      2645529 bytes
-HTML transferred:      1530306 bytes
+HTML transferred:       1530306 bytes
 Requests per second:    715.81 [#/sec] (mean)
 ```
 
 而在使用 Redis 以及主从架构之后，测试的结果如下，每秒平均的请求数以及提高到了 4839.62，大大提高了网站的吞吐量。
 
 ```
-Time taken for tests:  1.033 seconds
+Time taken for tests:   1.033 seconds
 Total transferred:      2696313 bytes
-HTML transferred:      1559682 bytes
+HTML transferred:       1559682 bytes
 Requests per second:    4839.62 [#/sec] (mean)
 ```
