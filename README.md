@@ -2,8 +2,9 @@
     <h1>
         MbBlog
     </h1>
-    <img src="pics/8.gif">
+    <img src="pics/1.jpg">
 </div>
+
 
 <!-- GFM-TOC -->
 * [How to Use](#how-to-use)
@@ -388,6 +389,7 @@ deleteBlog.on("click", function ()
 <div align="center">
     <img src="pics/10.gif">
 </div>
+
 
 ## 性能测试
 
