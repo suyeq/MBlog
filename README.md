@@ -10,30 +10,39 @@
 
 * [Demo](#demo)
 
+* [性能测试](#性能测试)
+
+* [交互设计](#交互设计)
+
+    - [登录时异步修改用户头像](#登录时异步修改用户头像)
+    - [异步删帖](#异步删帖)
+
 * [缓存](#缓存)
 
     * [热点微博](#热点微博)
+
     * [Reids 和 Memcache](#reids-和-memcache)
+
     * [Redis 配置](#redis-配置)
+
     * [实现](#实现)
+
     * [业务上的折中](#业务上的折中)
+
     * [序列化方式的选择](#序列化方式的选择)
 
+* [安全性](#安全性)
+
+    * [XSS 防御](xss-防御)
+    * [Redis Crackit](redis-crackit)
+
 * [主从架构](#主从架构)
+
     * [主从复制](#主从复制)
     * [读写分离](#读写分离)
     * [主从复制配置](#主从复制配置)
 
-* [安全性](#安全性)
-    * [XSS 防御](xss-防御)
-    * [Redis Crackit](redis-crackit)
-
-* [交互设计](#交互设计)
-    * [登录时异步修改用户头像](#登录时异步修改用户头像)
-    * [异步删帖](#异步删帖)
-
-* [性能测试](#性能测试)
-  <!-- GFM-TOC -->
+<!-- GFM-TOC -->
 
 ## 系统架构图
 
@@ -47,7 +56,102 @@
 
 用户名和密码都为 test。
 
-## 缓存
+## 性能测试
+
+使用 Apache 的 ab 工具来进行压力测试。
+
+为了防止网络时延的影响，因此在服务器端运行 ab 工具进行测试。
+
+使用以下命令来使用 ab 工具，其中 -c 参数为并发数，-n 参数为请求数，-k 参数表示持久连接，http://localhost/MBlog 就是待测试的网站。
+
+```
+ab -c 1000 -n 5000 -k http://localhost/MBlog
+```
+
+在使用 Redis 进行缓存以及使用主从架构来实现读写分离之前，进行以上测试得到的部分结果如下，可以看出可以每秒平均的请求数为 715.81。
+
+```
+Time taken for tests:   6.985 seconds
+Total transferred:      2645529 bytes
+HTML transferred:       1530306 bytes
+Requests per second:    715.81 [#/sec] (mean)
+```
+
+而在使用 Redis 以及主从架构之后，测试的结果如下，每秒平均的请求数以及提高到了 4839.62，大大提高了网站的吞吐量。
+
+```
+Time taken for tests:   1.033 seconds
+Total transferred:      2696313 bytes
+HTML transferred:       1559682 bytes
+Requests per second:    4839.62 [#/sec] (mean)
+```
+
+## 交互设计
+
+### 登录时异步修改用户头像
+
+为了提高用户在登录时的使用体验，通过监听用户名输入框的 focusout 事件，当该事件发生时，通过 ajax 异步获取用户头像。
+
+```js
+var userNameInput = $("input[name=userName]");
+userNameInput.focusout(function ()
+{
+    $.ajax({
+            url: "getUserHeadPic.html",
+            type: "post",
+            dataType: "text",
+            data: {
+                userName: userNameInput.val()
+            },
+            success: function (headpic)
+            {
+                replaceHeadPic(headpic);
+            }
+    });
+}
+```
+
+<div align="center">
+    <img src="pics/9.gif">
+</div>
+
+### 异步删帖
+
+考虑到用户在删帖后想继续浏览剩下的帖子，因此采用异步的方式进行删帖，删帖之后不需要刷新页面。
+
+删帖成功之后，会将该帖子隐藏。为了更好的体验，隐藏过程设置了一个 200 毫秒的延迟，从而具有一个短暂的隐藏动画效果。
+
+```js
+var deleteBlog = $("#delete-blog");
+
+deleteBlog.on("click", function ()
+{
+    var blogid = deleteBlog.attr("blogid");
+    var blogDiv = $("#blog-" + blogid.toString());
+    $.ajax({
+        url: "editBlog.html",
+        type: "post",
+        dataType: "text",
+        data: {
+            blogId: blogid
+        },
+        success: function ()
+        {
+            blogDiv.hide(200);
+        }
+    });
+})
+```
+
+
+
+<div align="center">
+    <img src="pics/10.gif">
+</div>
+
+
+
+## 缓存实现
 
 ### 热点微博
 
@@ -175,7 +279,31 @@ public static Blog readBlogObject(String s)
 
 至于 JSON 序列化方式，因为它也存储着字段的名称，因此很容易就能知道在空间开销上比字段拼接方式要高很多。
 
+## 安全性
 
+### XSS 防御
+
+微博之类的内容网站，如果没有对发布的内容进行处理，很容易收到 XSS 攻击的影响。例如任何用户都可以发布以下内容：
+
+```html
+<script> alert("hello"); </script>	
+```
+
+这个脚本会被执行，从而导致其它用户在浏览到该内容时，浏览器弹出一个窗口，影响使用体验。
+
+除此之外，XSS 还可以产生以下危害：
+
+- 窃取用户的 Cookie
+- 伪造虚假的输入表单骗取个人信息
+- 显示伪造的文章或者图片
+
+防御 XSS 也很容易，只要将 `<` 和 `>` 等字符进行转义即可。
+
+### Redis Crackit
+
+当使用 root 用户运行 Redis，并且 Redis 未设置密码或者设置为初始密码，那么攻击者很容易登录到 Redis 上，并且使用 config 修改 authorized_keys 文件，从而让攻击者无需用户名和密码即可登录。
+
+解决方案是，使用普通用户运行 Redis，并且设置复杂的 Redis 密码。
 
 ## 主从架构
 
@@ -305,122 +433,3 @@ mysql > show slave status\G;
             ...
 ```
 
-## 安全性
-
-### XSS 防御
-
-微博之类的内容网站，如果没有对发布的内容进行处理，很容易收到 XSS 攻击的影响。例如任何用户都可以发布以下内容：
-
-```html
-<script> alert("hello"); </script>	
-```
-
-这个脚本会被执行，从而导致其它用户在浏览到该内容时，浏览器弹出一个窗口，影响使用体验。
-
-除此之外，XSS 还可以产生以下危害：
-
-- 窃取用户的 Cookie
-- 伪造虚假的输入表单骗取个人信息
-- 显示伪造的文章或者图片
-
-防御 XSS 也很容易，只要将 `<` 和 `>` 等字符进行转义即可。
-
-### Redis Crackit
-
-当使用 root 用户运行 Redis，并且 Redis 未设置密码或者设置为初始密码，那么攻击者很容易登录到 Redis 上，并且使用 config 修改 authorized_keys 文件，从而让攻击者无需用户名和密码即可登录。
-
-解决方案是，使用普通用户运行 Redis，并且设置复杂的 Redis 密码。
-
-## 交互设计
-
-### 登录时异步修改用户头像
-
-为了提高用户在登录时的使用体验，通过监听用户名输入框的 focusout 事件，当该事件发生时，通过 ajax 异步获取用户头像。
-
-```js
-var userNameInput = $("input[name=userName]");
-userNameInput.focusout(function ()
-{
-    $.ajax({
-            url: "getUserHeadPic.html",
-            type: "post",
-            dataType: "text",
-            data: {
-                userName: userNameInput.val()
-            },
-            success: function (headpic)
-            {
-                replaceHeadPic(headpic);
-            }
-    });
-}
-```
-
-<div align="center">
-    <img src="pics/9.gif">
-</div>
-
-### 异步删帖
-
-考虑到用户在删帖后想继续浏览剩下的帖子，因此采用异步的方式进行删帖，删帖之后不需要刷新页面。
-
-删帖成功之后，会将该帖子隐藏。为了更好的体验，隐藏过程设置了一个 200 毫秒的延迟，从而具有一个短暂的隐藏动画效果。
-
-```js
-var deleteBlog = $("#delete-blog");
-
-deleteBlog.on("click", function ()
-{
-    var blogid = deleteBlog.attr("blogid");
-    var blogDiv = $("#blog-" + blogid.toString());
-    $.ajax({
-        url: "editBlog.html",
-        type: "post",
-        dataType: "text",
-        data: {
-            blogId: blogid
-        },
-        success: function ()
-        {
-            blogDiv.hide(200);
-        }
-    });
-})
-```
-
-
-
-<div align="center">
-    <img src="pics/10.gif">
-</div>
-
-
-## 性能测试
-
-使用 Apache 的 ab 工具来进行压力测试。
-
-为了防止网络时延的影响，因此在服务器端运行 ab 工具进行测试。
-
-使用以下命令来使用 ab 工具，其中 -c 参数为并发数，-n 参数为请求数，-k 参数表示持久连接，http://localhost/MBlog 就是待测试的网站。
-
-```
-ab -c 1000 -n 5000 -k http://localhost/MBlog
-```
-
-在使用 Redis 进行缓存以及使用主从架构来实现读写分离之前，进行以上测试得到的部分结果如下，可以看出可以每秒平均的请求数为 715.81。
-
-```
-Time taken for tests:   6.985 seconds
-Total transferred:      2645529 bytes
-HTML transferred:       1530306 bytes
-Requests per second:    715.81 [#/sec] (mean)
-```
-
-而在使用 Redis 以及主从架构之后，测试的结果如下，每秒平均的请求数以及提高到了 4839.62，大大提高了网站的吞吐量。
-
-```
-Time taken for tests:   1.033 seconds
-Total transferred:      2696313 bytes
-HTML transferred:       1559682 bytes
-Requests per second:    4839.62 [#/sec] (mean)
-```
