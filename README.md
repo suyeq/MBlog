@@ -6,9 +6,12 @@
 
 <!-- GFM-TOC -->
 
-* [How to Use](#how-to-use)
+* [系统架构图](#系统架构图)
+
+* [Demo](#demo)
 
 * [缓存](#缓存)
+
     * [热点微博](#热点微博)
     * [Reids 和 Memcache](#reids-和-memcache)
     * [Redis 配置](#redis-配置)
@@ -32,16 +35,17 @@
 * [性能测试](#性能测试)
   <!-- GFM-TOC -->
 
+## 系统架构图
 
-
+<div align="center">
   <img src="pics/1.jpg">
+</div>
 
+## Demo
 
-## How to Use
+[MBlog](http://www.cyc2018.tech/MBlog/)
 
-- 用户名：test
-
-- 密码：test
+用户名和密码都为 test。
 
 ## 缓存
 
