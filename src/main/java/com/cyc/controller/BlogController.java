@@ -23,8 +23,10 @@ public class BlogController {
 
     @RequestMapping(value = "/publishBlog.html")
     public ModelAndView publishBlog(String blogContent) {
-        if (blogContent.length() != 0) {
-            User user = SessionUtil.getUserSession(request);
+        User user = SessionUtil.getUserSession(request);
+        int len = blogContent.length();
+        final int MAX_LEN = 1000;
+        if (len > 0 && len < MAX_LEN && user != null) {
             blogContent = XSSFilter.filterBrackets(blogContent);
             blogServiceImp.addBlog(user.getUserid(), blogContent);
         }
@@ -35,6 +37,7 @@ public class BlogController {
     @ResponseBody
     public String deleteBlog(Integer blogId) {
         User user = SessionUtil.getUserSession(request);
+        if (user == null) return "error";
         blogServiceImp.deleteBlog(user.getUserid(), blogId);
         return "success";
     }

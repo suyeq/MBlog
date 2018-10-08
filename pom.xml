@@ -281,7 +281,7 @@
     </dependencies>
 
     <build>
-        <finalName>Microblog-System</finalName>
+        <finalName>MBlog</finalName>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
             <plugins>
                 <plugin>
@@ -354,6 +354,14 @@
                     </connectors>
                     <contextPath>/mblog</contextPath>
                     <scanIntervalSeconds>0</scanIntervalSeconds>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>

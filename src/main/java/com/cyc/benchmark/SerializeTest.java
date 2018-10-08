@@ -90,7 +90,7 @@ class Test2 extends SerializeTest
     {
         Blog blog = null;
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-        ObjectInputStream objectInputStream = null;
+        ObjectInputStream objectInputStream;
         try {
             objectInputStream = new ObjectInputStream(byteArrayInputStream);
             blog = (Blog) objectInputStream.readObject();

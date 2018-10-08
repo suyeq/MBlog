@@ -26,10 +26,6 @@ public class PropertiesUtil {
 
     public static String getProperty(String key) {
         return props.getProperty(key.trim()).trim();
-//        if (StringUtils.isBlank(value)) {
-//            return null;
-//        }
-//        return value.trim();
     }
 
     public static String getProperty(String key, String defaultValue) {
