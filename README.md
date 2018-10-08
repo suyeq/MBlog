@@ -209,7 +209,13 @@ public static Blog readBlogObject(String s)
 
 为了得到这三个用户的四个最新元素，使用堆结构，堆顶元素为当前最新元素，将这个元素移除并添加到结果集中，并且从该元素所属 ZSET 中再取出一个元素添加到堆中。
 
-![](pics/1.gif)
+
+
+<div align="center">
+  <img src="pics/1.gif" width="500px">
+</div>
+
+
 
 ## 主从架构
 
