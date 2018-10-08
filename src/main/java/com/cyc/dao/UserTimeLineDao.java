@@ -34,14 +34,13 @@ public class UserTimeLineDao {
             return 0;
         });
 
-        int n = userIds.size();
         Map<String, Integer> indexForKey = new HashMap<>();
         for (int userId : userIds) {
             String key = buildKey(userId);
             indexForKey.put(key, 0);
         }
 
-        final int MAX_NUM = 5;
+        final int MAX_NUM = 20;
 
         List<Integer> res = new ArrayList<>();
 
