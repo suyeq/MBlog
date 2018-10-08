@@ -212,7 +212,7 @@ public static Blog readBlogObject(String s)
 
 
 <div align="center">
-  <img src="pics/1.gif" width="500px">
+  <img src="pics/1.gif" width="600px">
 </div>
 
 
