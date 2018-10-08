@@ -133,8 +133,6 @@ deleteBlog.on("click", function ()
     <img src="pics/10.gif">
 </div>
 
-
-
 ## 缓存实现
 
 ### 热点微博
