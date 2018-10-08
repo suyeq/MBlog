@@ -18,8 +18,6 @@ public class RedisPool {
         config.setMaxTotal(PropertiesUtil.getIntegerProperty("redis.max.total"));
         config.setMaxIdle(PropertiesUtil.getIntegerProperty("redis.max.idle"));
         config.setMinIdle(PropertiesUtil.getIntegerProperty("redis.min.idle"));
-//        config.setTestOnBorrow(PropertiesUtil.getBooleanProperty("redis.test.on.borrow"));
-//        config.setTestOnReturn(PropertiesUtil.getBooleanProperty("redis.test.on.return"));
         config.setBlockWhenExhausted(PropertiesUtil.getBooleanProperty("redis.lock.when.exhausted"));
         pool = new JedisPool(config,
                 PropertiesUtil.getProperty("redis.ip"),
@@ -39,7 +37,6 @@ public class RedisPool {
         try (Jedis jedis = RedisPool.getResource()) {
             result = jedis.set(key, value);
         } catch (Exception e) {
-            // TODO
             e.printStackTrace();
         }
         return result;
@@ -52,7 +49,6 @@ public class RedisPool {
         try (Jedis jedis = RedisPool.getResource()) {
             result = jedis.get(key);
         } catch (Exception e) {
-            // TODO
             e.printStackTrace();
         }
         return result;
@@ -66,7 +62,6 @@ public class RedisPool {
         try (Jedis jedis = RedisPool.getResource()) {
             result = jedis.setex(key, exTime, value);
         } catch (Exception e) {
-            // TODO
             e.printStackTrace();
         }
         return result;
@@ -80,7 +75,6 @@ public class RedisPool {
         try (Jedis jedis = RedisPool.getResource()) {
             result = jedis.expire(key, exTime);
         } catch (Exception e) {
-            // TODO
             e.printStackTrace();
         }
         return result;
@@ -94,7 +88,6 @@ public class RedisPool {
         try (Jedis jedis = RedisPool.getResource()) {
             result = jedis.del(key);
         } catch (Exception e) {
-            // TODO
             e.printStackTrace();
         }
         return result;
@@ -108,7 +101,6 @@ public class RedisPool {
         try (Jedis jedis = RedisPool.getResource()) {
             result = jedis.zadd(key, score, member);
         } catch (Exception e) {
-            // TODO
             e.printStackTrace();
         }
         return result;
@@ -122,7 +114,6 @@ public class RedisPool {
         try (Jedis jedis = RedisPool.getResource()) {
             result = jedis.zrange(key, start, stop);
         } catch (Exception e) {
-            //　TODO
             e.printStackTrace();
         }
         return result;
@@ -136,7 +127,6 @@ public class RedisPool {
         try (Jedis jedis = RedisPool.getResource()) {
             result = jedis.zrangeWithScores(key, start, stop);
         } catch (Exception e) {
-            //　TODO
             e.printStackTrace();
         }
         return result;
@@ -150,14 +140,9 @@ public class RedisPool {
         try (Jedis jedis = RedisPool.getResource()) {
             result = jedis.zcard(key);
         } catch (Exception e) {
-            // TODO
             e.printStackTrace();
         }
         return result;
-    }
-
-    public static void returnResource(Jedis jedis) {
-        pool.returnResource(jedis);
     }
 
     public static Jedis getResource() {
