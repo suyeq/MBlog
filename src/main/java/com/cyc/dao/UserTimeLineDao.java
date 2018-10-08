@@ -46,7 +46,7 @@ public class UserTimeLineDao {
                 }
             }
 
-            final int MAX_NUM = 5;
+            final int MAX_NUM = 20;
             long size = jedis.zcard(key0);
             jedis.zremrangeByRank(key0, 0, size - MAX_NUM);
 
@@ -77,25 +77,5 @@ public class UserTimeLineDao {
 
     private String buildKey1(Integer userId) {
         return TIME_LINE_0_NAMESPACE + userId;
-    }
-
-    private class TupleWithKey {
-
-        Tuple t;
-        String key;
-
-        TupleWithKey(Tuple t, String key) {
-            this.t = t;
-            this.key = key;
-        }
-    }
-
-    private void fetch(PriorityQueue<TupleWithKey> heap, Map<String, Integer> indexForKey, String key, Jedis jedis) {
-        int index = indexForKey.get(key);
-        Set<Tuple> sets = jedis.zrangeWithScores(key, index, index);
-        for (Tuple t : sets) {
-            heap.add(new TupleWithKey(t, key));
-        }
-        indexForKey.put(key, index + 1);
     }
 }
