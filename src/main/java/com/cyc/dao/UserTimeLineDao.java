@@ -12,6 +12,7 @@ import java.util.*;
 public class UserTimeLineDao {
 
     private final static String TIME_LINE_NAMESPACE = "time_lien:";
+    private final static String TIME_LINE_0_NAMESPACE = "time_lien_0:";
 
     public void add(Integer userId, Integer blogId) {
         String key = buildKey(userId);
@@ -25,43 +26,42 @@ public class UserTimeLineDao {
         }
     }
 
-    public List<Integer> get(Set<Integer> userIds) {
-
-        PriorityQueue<TupleWithKey> heap = new PriorityQueue<>((o1, o2) -> {
-            double s1 = o1.t.getScore(), s2 = o2.t.getScore();
-            if (s1 < s2) return 1;
-            else if (s1 > s2) return -1;
-            return 0;
-        });
-
-        Map<String, Integer> indexForKey = new HashMap<>();
-        for (int userId : userIds) {
-            String key = buildKey(userId);
-            indexForKey.put(key, 0);
-        }
-
-        final int MAX_NUM = 20;
-
-        List<Integer> res = new ArrayList<>();
+    public List<Integer> get(Integer userId, Set<Integer> focusUserIds) {
 
         try (Jedis jedis = RedisPool.getResource()) {
-            for (int userId : userIds) {
-                String key = buildKey(userId);
-                fetch(heap, indexForKey, key, jedis);
+            String key0 = buildKey1(userId);
+            double lastTime = 0;
+            if (jedis.zcard(key0) != 0) {
+                Set<Tuple> sets = jedis.zrangeWithScores(key0, -1, -1);
+                for (Tuple t : sets) {
+                    lastTime = t.getScore();
+                }
             }
 
-            while (!heap.isEmpty() && heap.size() + res.size() < MAX_NUM) {
-                TupleWithKey top = heap.poll();
-                res.add(Integer.valueOf(top.t.getElement()));
-                String key = top.key;
-                fetch(heap, indexForKey, key, jedis);
+            for (int fuserId : focusUserIds) {
+                String key = buildKey(fuserId);
+                Set<Tuple> sets = jedis.zrangeByScoreWithScores(key, lastTime, Double.MAX_VALUE);
+                for (Tuple t : sets) {
+                    jedis.zadd(key0, t.getScore(), t.getElement());
+                }
             }
 
-            while (!heap.isEmpty() && res.size() < MAX_NUM) {
-                res.add(Integer.valueOf(heap.poll().t.getElement()));
+            final int MAX_NUM = 5;
+            long size = jedis.zcard(key0);
+            jedis.zremrangeByRank(key0, 0, size - MAX_NUM);
+
+            List<Tuple> list = new ArrayList<>(jedis.zrangeWithScores(key0, 0, -1));
+            list.sort((o1, o2) -> {
+                if (o1.getScore() > o2.getScore()) return -1;
+                else if (o1.getScore() < o2.getScore()) return 1;
+                return 0;
+            });
+            List<Integer> res = new ArrayList<>();
+            for (Tuple t : list) {
+                res.add(Integer.valueOf(t.getElement()));
             }
+            return res;
         }
-        return res;
     }
 
     public void delete(Integer userId, Integer blogId) {
@@ -73,6 +73,10 @@ public class UserTimeLineDao {
 
     private String buildKey(Integer userId) {
         return TIME_LINE_NAMESPACE + userId;
+    }
+
+    private String buildKey1(Integer userId) {
+        return TIME_LINE_0_NAMESPACE + userId;
     }
 
     private class TupleWithKey {

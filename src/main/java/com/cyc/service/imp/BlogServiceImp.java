@@ -36,7 +36,7 @@ public class BlogServiceImp implements BlogService {
 
         Set<Integer> users = userRelationDao.getFollowings(userId);
         users.add(userId);
-        List<Integer> blogs = userTimeLineDao.get(users);
+        List<Integer> blogs = userTimeLineDao.get(userId, users);
         List<Blog> blogIdList = new ArrayList<>();
         for (int b : blogs) {
             Blog blog = new Blog();
