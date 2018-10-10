@@ -42,6 +42,21 @@
 
 用户名和密码都为 test。
 
+## 运行环境
+
+本系统运行在三台云服务器上。
+
+### 硬件
+
+- CPU : 1  Intel(R) Xeon(R) CPU E5-26xx v4
+- 内存 :  Size: 1024 MB Type: RAM
+
+### 软件
+
+- Linux : version 2.6.32-642.6.2.el6.x86_64
+- MySQL : Ver 14.14 Distrib 5.1.73
+- Redis : v=4.0.8
+
 ## 性能测试
 
 使用 Apache 的 ab 工具来进行压力测试。
