@@ -32,8 +32,9 @@
 ## 系统架构图
 
 <div align="center">
-  <img src="pics/1.jpg">
+  <img src="pics/1.png">
 </div>
+
 
 ## Demo
 
