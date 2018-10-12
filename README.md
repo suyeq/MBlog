@@ -181,26 +181,28 @@ public void addBlog(int userId, String content)
 在实现 Redis 缓存功能时，最开始选择使用 Java 自带的序列化方式将一个对象转换成字节数组然后存储，但是后来意识到这样序列化得到的内容有很多是类定义的内容，这部分内容完全没必要存入缓存中，只需要将几个关键字段拼接成字符串存储即可，实现代码如下：
 
 ```java
-public static String writeBlogObject(Blog blog)
-{
-    StringBuilder s = new StringBuilder();
-    s.append(blog.getUserid()).append(",");
-    s.append(blog.getBlogid()).append(",");
-    s.append(DateUtil.formatDate(blog.getPublishtime())).append(",");
-    s.append(blog.getContent());
-    return s.toString();
-}
+    public static String writeBlogObject(Blog blog)
+    {
+        StringBuilder s = new StringBuilder();
+        s.append(blog.getUserid()).append(separator);
+        s.append(blog.getBlogid()).append(separator);
+        s.append(DateUtil.formatDate(blog.getPublishtime())).append(separator);
+        s.append(blog.getContent());
+        return s.toString();
+    }
 
-public static Blog readBlogObject(String s)
-{
-    Blog blog = new Blog();
-    String[] token = s.split(",");
-    blog.setUserid(Integer.valueOf(token[0]));
-    blog.setBlogid(Integer.valueOf(token[1]));
-    blog.setPublishtime(DateUtil.parseDate(token[2]));
-    blog.setContent(token[3]);
-    return blog;
-}
+    public static Blog readBlogObject(String s)
+    {
+        Blog blog = new Blog();
+        String[] token = s.split(separator);
+        blog.setUserid(Integer.valueOf(token[0]));
+        blog.setBlogid(Integer.valueOf(token[1]));
+        blog.setPublishtime(DateUtil.parseDate(token[2]));
+        if(token.length > 3) {
+            blog.setContent(token[3]);
+        }
+        return blog;
+    }
 ```
 
 为了验证两种序列化方式的时间和空间上的开销，进行了两个基准测试，测试代码在 com.cyc.benchmark.SerializeTest.java 中，因为比较长就不贴代码了。
@@ -220,9 +222,7 @@ public static Blog readBlogObject(String s)
 
 使用 Redis 的 ZSET 数据结构，为每个用户维护一个已发布微博 ID 集合 S1，分值为时间戳。当集合大小超过一定阈值时，删除最久远的数据。
 
-
-
-同样使用 ZSET 为每个用户维护一个关注用户已发布微博 ID 集合 S2，使用拉模式维护 S2，在用户刷新之后，会主动从其关注者的 S1 中去拉取数据。具体的拉取过程为，先取出 S2 中最近的时间戳 t，遍历所有关注用户的 S1，取出分值为 t 到无穷大的数据，添加到 S2 中。S2 的大小超过一定阈值时也需要删除最久远的数据。
+同样使用 ZSET 为每个用户维护一个关注用户已发布微博 ID 集合 S2，使用拉模式维护 S2，在用户刷新首页之后，会主动从其关注者的 S1 中去拉取数据。具体的拉取过程为，先取出 S2 中最近的时间戳 t，遍历所有关注用户的 S1，取出分值为 t 到无穷大的数据，添加到 S2 中。S2 的大小超过一定阈值时也需要删除最久远的数据。
 
 
 ## 主从架构
@@ -375,7 +375,7 @@ mysql > show slave status\G;
 
 ### Redis Crackit
 
-当使用 root 用户运行 Redis，并且 Redis 未设置密码或者设置为初始密码，那么攻击者很容易登录到 Redis 上，并且使用 config 修改 authorized_keys 文件，从而让攻击者无需用户名和密码即可登录。
+当使用 root 用户运行 Redis，并且 Redis 未设置密码或者设置为初始密码，那么攻击者很容易登录到 Redis 上，并且使用 config 命令修改 authorized_keys 文件，从而让攻击者无需用户名和密码即可登录。
 
 解决方案是，使用普通用户运行 Redis，并且设置复杂的 Redis 密码。
 
