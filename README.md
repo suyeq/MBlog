@@ -1,6 +1,6 @@
 <div align="center">
     <h1>
-        MbBlog
+        MBlog
     </h1>
 </div>
 
