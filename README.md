@@ -94,7 +94,7 @@ Requests per second:    4839.62 [#/sec] (mean)
 
 微博内容具有读多写少的特性，这种场景下特别适合将数据进行缓存。MBlog 使用 Redis 缓存热点微博数据。
 
-### Reids 和 Memcache
+### Redis 和 Memcache
 
 在项目开始的时候面临着 Redis 和 Memcache 的选择问题，它们之间的主要区别如下：
 
